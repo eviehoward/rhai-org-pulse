@@ -197,6 +197,13 @@ function targetForRow(row) {
 const { releaseComponentBreakdown } = useComponentBreakdown(data, releaseData)
 const { leadsFor } = useComponentLeads()
 
+/** Build a key-based Jira URL for a per-release category bucket (aligned_late / misaligned).
+ * The temporal+freeze classification ran server-side; we just link to the resulting key set. */
+function releaseKeysJqlUrl(releaseName, category) {
+  const bucket = data.value?.releases?.[releaseName]?.[category]
+  return buildKeysJqlUrl(bucket)
+}
+
 /** Compute days until planning freeze from an ISO date string. Returns null if no date. */
 function daysToFreeze(freezeDate) {
   if (!freezeDate) return null
@@ -447,7 +454,13 @@ onBeforeUnmount(() => {
                       <span v-else class="text-gray-400">&mdash;</span>
                     </td>
                     <td class="px-4 py-2 text-right">
-                      <span v-if="!row._pending" class="text-xs font-medium text-amber-600 dark:text-amber-400" :title="COLUMN_HELP.aligned_late">{{ row.aligned_late || 0 }}</span>
+                      <ClickableCount
+                        v-if="!row._pending"
+                        :count="row.aligned_late || 0"
+                        :jql="releaseKeysJqlUrl(row.release, 'aligned_late')"
+                        color="amber"
+                        label="Aligned late"
+                      />
                       <span v-else class="text-gray-400">&mdash;</span>
                     </td>
                     <td class="px-4 py-2 text-right">
@@ -459,7 +472,13 @@ onBeforeUnmount(() => {
                       <span v-else class="text-gray-400">&mdash;</span>
                     </td>
                     <td class="px-4 py-2 text-right">
-                      <span v-if="!row._pending" class="text-xs font-medium text-red-600 dark:text-red-400">{{ row.misaligned != null ? row.misaligned : (row.mismatched || 0) }}</span>
+                      <ClickableCount
+                        v-if="!row._pending"
+                        :count="row.misaligned != null ? row.misaligned : (row.mismatched || 0)"
+                        :jql="releaseKeysJqlUrl(row.release, 'misaligned')"
+                        color="red"
+                        label="Misaligned"
+                      />
                       <span v-else class="text-gray-400">&mdash;</span>
                     </td>
                     <td class="px-4 py-2 text-right">
