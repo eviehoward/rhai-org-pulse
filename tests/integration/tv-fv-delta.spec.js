@@ -676,7 +676,8 @@ test.describe('TV/FV Delta — Executive Summary @tv-fv-delta', () => {
     const summarySection = page.locator('div:has(> div > h2:has-text("Executive Summary"))').first();
     const jiraLinks = summarySection.locator('tbody a[href*="atlassian.net"]');
     const linkCount = await jiraLinks.count();
-    // Each row has Total, On Time, TV-Only, FV-Only = 4 clickable links per row × 18 rows
+    // Each row has Total, On Time, TV-Only, FV-Only as clickable links.
+    // Aligned Late and Misaligned are also clickable when non-zero (key-based JQL).
     expect(linkCount).toBeGreaterThanOrEqual(18);
 
     expect(relevantErrors(page)).toHaveLength(0);
